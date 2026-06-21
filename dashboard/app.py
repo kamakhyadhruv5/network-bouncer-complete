@@ -21,7 +21,13 @@ import streamlit as st
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dashboard import charts  # noqa: E402
-from dashboard.exports import build_reports, flatten_for_export  # noqa: E402
+from dashboard.exports import (  # noqa: E402
+    build_executive_summary,
+    build_reports,
+    flatten_for_export,
+    summary_to_json,
+    summary_to_txt,
+)
 from dashboard.pipeline_runner import (  # noqa: E402
     DEFAULT_SENSITIVITY,
     SENSITIVITY_PRESETS,
@@ -320,8 +326,23 @@ def render_charts_tab(result: AnalysisResult) -> None:
     st.plotly_chart(charts.connection_distribution(e), use_container_width=True)
 
 
+def _render_executive_summary(result: AnalysisResult) -> None:
+    """Headline one-page summary + JSON/TXT downloads (both modes)."""
+    summary = build_executive_summary(result)
+    st.markdown("##### 📋 Executive summary")
+    txt = summary_to_txt(summary).decode("utf-8")
+    st.code(txt, language="text")
+    c1, c2 = st.columns(2)
+    c1.download_button("⬇ Summary (TXT)", summary_to_txt(summary),
+                       "executive_summary.txt", "text/plain", use_container_width=True)
+    c2.download_button("⬇ Summary (JSON)", summary_to_json(summary),
+                       "executive_summary.json", "application/json", use_container_width=True)
+    st.divider()
+
+
 def render_export_tab(result: AnalysisResult) -> None:
     st.subheader("Export reports")
+    _render_executive_summary(result)
     st.caption("Download analyst-ready CSVs of the analysis.")
     reports = build_reports(result.enriched)
 
@@ -471,6 +492,7 @@ def render_flow_charts_tab(result: AnalysisResult) -> None:
 def render_flow_export_tab(result: AnalysisResult) -> None:
     f = result.flow_df
     st.subheader("Export reports")
+    _render_executive_summary(result)
     st.caption("Download analyst-ready CSVs of the flow-level analysis.")
     cols = [c for c in FLOW_DISPLAY_COLUMNS if c in f.columns]
     flagged = f[f["flow_is_suspicious"]] if "flow_is_suspicious" in f else f
