@@ -30,3 +30,6 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/
+
+# Verification run output
+check_report.csv
