@@ -33,3 +33,9 @@ Thumbs.db
 
 # Verification run output
 check_report.csv
+
+# Sample-script outputs
+raw_unsw_sample.csv
+population_sample.csv
+sample_dirty.csv
+alerts.json
