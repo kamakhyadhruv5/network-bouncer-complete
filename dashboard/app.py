@@ -49,15 +49,23 @@ st.set_page_config(
 _CSS = """
 <style>
     .main .block-container { padding-top: 2rem; }
+    /* Theme-agnostic metric cards. A translucent neutral tint + border reads
+       well on BOTH light and dark backgrounds, so the dashboard follows the
+       viewer's Streamlit/browser theme instead of forcing dark (which looked
+       broken in light mode). */
     div[data-testid="stMetric"] {
-        background: #161b22; border: 1px solid #30363d; border-radius: 10px;
+        background: rgba(128, 128, 128, 0.08);
+        border: 1px solid rgba(128, 128, 128, 0.25);
+        border-radius: 10px;
         padding: 14px 16px;
     }
     div[data-testid="stMetricValue"] { font-size: 1.7rem; }
+    /* Title/body inherit the active theme's text colour (no hard-coded white). */
     .nb-title { font-size: 2.1rem; font-weight: 800; margin-bottom: 0; }
-    .nb-sub { color: #8b949e; margin-top: 0; }
+    .nb-sub { color: #7a8694; margin-top: 0; }   /* mid-grey: legible on light & dark */
+    /* Severity accents stay readable on either background. */
     .nb-crit { color: #d7263d; font-weight: 700; }
-    .nb-high { color: #f46036; font-weight: 700; }
+    .nb-high { color: #e8590c; font-weight: 700; }
 </style>
 """
 st.markdown(_CSS, unsafe_allow_html=True)
@@ -128,6 +136,11 @@ def render_sidebar() -> dict:
         "port-scan detection.\n\n"
         "• **UNSW-NB15 feature set** (proto, state, service, ct_*…) → "
         "flow-level detection."
+    )
+    st.sidebar.divider()
+    st.sidebar.caption(
+        "🌗 **Light / Dark mode:** top-right **⋮** menu → **Settings** → "
+        "**Theme**. The dashboard adapts to either."
     )
     return {"uploaded": uploaded, "is_raw": is_raw, "sensitivity": sensitivity, "use_demo": use_demo}
 
